@@ -1,0 +1,83 @@
+.wrapper {
+  padding: 10px;
+  min-width: 800px;
+  overflow: auto;
+}
+.circles {
+  display: flex;
+}
+.bottom {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+.flex {
+  display: flex;
+}
+.flex-1 {
+  flex: 1;
+}
+.information {
+  padding: 20px;
+  width: 49%;
+  border-radius: 6px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+  p {
+    margin: 20px 0;
+  }
+}
+
+.preview-image {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  .btn-close{
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+}
+.swiper {
+  margin: auto;
+  .swiper-button-prev{
+    left: 10vw;
+  }
+  .swiper-button-next{
+    right: 10vw;
+  }
+  .swiper-button-prev,
+  .swiper-button-next {
+    color: #fff;
+  }
+  .swiper-pagination{
+    color: #fff;
+  }
+}
+
+.preview-item {
+  margin: auto;
+  color: #fff;
+  text-align: center;
+  .detail {
+    margin-bottom: 10px;
+    font-size: 20px;
+  }
+  .img-box {
+    height: 80vh;
+    display: flex;
+  }
+  img {
+    margin: auto;
+    max-height: 100%;
+    max-width: 100%;
+    user-select: none;
+    object-fit: cover;
+  }
+}
