@@ -1,16 +1,16 @@
 import createRequest from "../utils/request.js";
 
 const request = createRequest({
-  // baseURL: `https://api.github.com/repos/${OWNER}/${REPO}`
+  baseURL: 'http://159.75.126.25:8080'
 });
 
 export default {
-  // 获取一个issue
-  search(qrCode){
+  // 通过二维码查询图片信息
+  getInfoByQrCode(barCode){
     return request({
       url: "/tyre/check/getInfoByQrCode",
       data: {
-        qrCode
+        qrCode: barCode
       },
     })
   }

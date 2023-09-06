@@ -1,14 +1,17 @@
 import { useEffect } from 'react';
 import { useRef } from 'react';
-import "./index.scss"
+import './index.scss';
 export default function (props) {
   let canvasRef = useRef(null);
 
-  let { points } = props;
+  let { points, previewPoint } = props;
 
   let showing = false;
+  let sectorNumber = 31; // 扇区数量
 
   useEffect(() => {
+    let sectorMap = getSectorMap(points);
+
     let canvas = canvasRef.current;
 
     // let width = Math.min(300, Math.max(200, window.innerWidth / 3));
@@ -41,17 +44,19 @@ export default function (props) {
     }
 
     // 画轮圈
-    ctx.fillStyle = '#333';
-    ctx.arc(width / 2, height / 2, width / 2, 0, Math.PI * 2, false);
-    ctx.arc(width / 2, height / 2, width / 2 - tireWidth, Math.PI * 2, 0, true);
-    ctx.fill();
+    // ctx.fillStyle = '#333';
+    // ctx.arc(width / 2, height / 2, width / 2, 0, Math.PI * 2, false);
+    // ctx.arc(width / 2, height / 2, width / 2 - tireWidth, Math.PI * 2, 0, true);
+    // ctx.fill();
 
     ctx.fillStyle = '#0c6cda';
 
-    function drawPoint(angle, payload) {
-      angle += adjustAngel;
-      let startMathAngle = ((angle - pointWidthAngle / 2) / 180) * Math.PI;
-      let endMathAngle = ((angle + pointWidthAngle / 2) / 180) * Math.PI;
+    // 画扇区
+    function drawSector(sectorIndex, points) {
+      // angle = sectorIndex* +adjustAngel;
+      // let startMathAngle = ((angle - pointWidthAngle / 2) / 180) * Math.PI;
+      let startMathAngle = ((Math.PI * 2) / sectorNumber) * sectorIndex + adjustAngel;
+      let endMathAngle = ((Math.PI * 2) / sectorNumber) * (sectorIndex + 1) + adjustAngel;
       let path = new Path2D();
       path.arc(width / 2, height / 2, width / 2, startMathAngle, endMathAngle, false);
       path.arc(width / 2, height / 2, width / 2 - tireWidth, endMathAngle, startMathAngle, true);
@@ -61,22 +66,36 @@ export default function (props) {
         let isInner = ctx.isPointInPath(path, e.offsetX, e.offsetY);
         if (isInner && !showing) {
           showing = true;
-          console.log(payload);
-          setTimeout( () => {
+          // console.log(points);
+          
+          previewPoint(points[0]);
+
+          setTimeout(() => {
             showing = false;
-          }, 100)
+          }, 100);
         }
       });
     }
 
-    points.forEach( point => {
-      drawPoint(point.angle, point)
-    })
+    for (let [index, points] of sectorMap) {
+      drawSector(index, points);
+    }
+  }, [points]);
 
-    // drawPoint(0, { id: 1 });
-  }, []);
+  function getSectorMap(points) {
+    let sectorAngle = 360 / sectorNumber;
+    let sectorMap = new Map();
+    points.forEach((point) => {
+      let sectorIndex = Math.floor(point.angle / sectorAngle);
+      let sector = sectorMap.get(sectorIndex);
+      if (!sector) {
+        sector = [];
+        sectorMap.set(sectorIndex, sector);
+      }
+      sector.push(point);
+    });
+    return sectorMap;
+  }
 
-  return (
-    <canvas ref={canvasRef} {...props}></canvas>
-  );
+  return <canvas ref={canvasRef} {...props}></canvas>;
 }

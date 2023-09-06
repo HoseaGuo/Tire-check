@@ -42,7 +42,7 @@ export default function createRequest(config) {
           resolve(result);
         })
         .catch((err) => {
-          result.msg = `請求出錯，code: ${err.response.status}`;
+          result.msg = `請求出錯，${err.message}`;
           console.log(result.msg);
           resolve(result);
         });

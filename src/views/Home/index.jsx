@@ -1,5 +1,5 @@
 import { Tabs, Table } from 'antd';
-import { Swiper, SwiperSlide } from 'swiper/react';
+import { Swiper, SwiperSlide, useSwiper } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper/modules';
 // Import Swiper styles
 import 'swiper/css';
@@ -9,6 +9,9 @@ import 'swiper/css/navigation';
 import './index.scss';
 import Circle from '../../components/Circle';
 import { useState } from 'react';
+import { useEffect } from 'react';
+import api from '../../api';
+import { useRef } from 'react';
 
 const columns = [
   {
@@ -30,63 +33,76 @@ const columns = [
   },
   {
     title: '正反',
-    dataIndex: 'direction',
+    render: function (text, record, index) {
+      return ['正面', '反面'][record.direction];
+    },
+  },
+  {
+    title: '机组',
+    dataIndex: 'group',
   },
 ];
 
+//监听扫码枪
+/**
+ *
+ * @param {*} callback 回调函数
+ */
+function eventListenerScanCode(callback) {
+  let barCode = '';
+  let lastTime = 0;
+  let timer;
+
+  // function ClearBarCode() {
+  //   barCode = '';
+  //   lastTime = 0;
+  // }
+
+  window.onkeypress = function (e) {
+    let lessTime = 80;
+
+    let currCode = e.keyCode || e.which || e.charCode;
+
+    let currTime = new Date().getTime();
+
+    if (currCode == 13) {
+      clearTimeout(timer);
+      scanComplete(barCode);
+    } else {
+      let realCode = String.fromCharCode(currCode);
+      if (currTime - lastTime <= lessTime) {
+        clearTimeout(timer);
+        // 扫码枪有效输入间隔毫秒
+        barCode += realCode;
+        // 防止一些扫码枪没有Enter事件触发，所以，在一秒后自动触发一下
+        timer = setTimeout(() => {
+          scanComplete(barCode);
+        }, 1000);
+      } else if (currTime - lastTime > lessTime) {
+        // 很长时间没有输入后，第一个按键作为第一个字符。
+        barCode = realCode;
+      }
+    }
+
+    lastTime = currTime;
+  };
+
+  function scanComplete(barCode) {
+    // 回车
+    if (barCode.length >= 16) {
+      console.log('扫码结果：' + barCode + '，长度：' + barCode.length);
+      //这里是根据我们二维码或条码的规则校验，增加准确度
+      // 扫码结果，做下一步业务处理
+      if (callback) callback(barCode);
+    }
+  }
+}
+
 function CheckView() {
   let [previewVisible, setPreviewVisible] = useState(false);
-
-  let points = [
-    {
-      angle: 0,
-      cameraNumber: 0,
-      direction: 0,
-      imagePath: 'string',
-      ngCode: 0,
-      time: '2023-09-05T07:48:20.354Z',
-    },
-    {
-      angle: 10,
-      cameraNumber: 0,
-      direction: 0,
-      imagePath: 'string',
-      ngCode: 0,
-      time: '2023-09-05T07:48:20.354Z',
-    },
-    {
-      angle: 12,
-      cameraNumber: 0,
-      direction: 0,
-      imagePath: 'string',
-      ngCode: 0,
-      time: '2023-09-05T07:48:20.354Z',
-    },
-    {
-      angle: 11,
-      cameraNumber: 0,
-      direction: 0,
-      imagePath: 'string',
-      ngCode: 0,
-      time: '2023-09-05T07:48:20.354Z',
-    },
-    {
-      angle: 78,
-      cameraNumber: 0,
-      direction: 0,
-      imagePath: 'string',
-      ngCode: 0,
-      time: '2023-09-05T07:48:20.354Z',
-    },
-    {
-      angle: 14,
-      cameraNumber: 0,
-      direction: 0,
-      imagePath: 'string',
-      ngCode: 0,
-      time: '2023-09-05T07:48:20.354Z',
-    },
-  ];
+  let [dataSource, setDataSource] = useState([]);
+  // TRMG11G2903500259 和 TRMG11G2903500260
+  let [barCode, setBarCode] = useState('TRMG11G2903500259');
 
   const data = new Array(12).fill(undefined).map((item, index) => {
     return {
@@ -95,14 +111,75 @@ function CheckView() {
     };
   });
 
+  useEffect(() => {
+    // 添加扫码事件
+    eventListenerScanCode((barCode) => {
+      console.log(barCode);
+      setBarCode(barCode);
+    });
+  });
+
+  let frontPoints = dataSource.filter((item) => item.direction === 0);
+  let backPoints = dataSource.filter((item) => item.direction === 1);
+  let [previewDirection, setPreviewDirection] = useState(undefined);
+  let isFront = previewDirection === 0;
+
+  useEffect(() => {
+    (async function () {
+      let { success, data } = await api.getInfoByQrCode(barCode);
+      if (success) {
+        // console.log(data);
+        if (data.code == '0') {
+          let { qrCodeImageInfos } = data.data;
+          // console.log(data.data)
+
+          setDataSource(
+            qrCodeImageInfos.map((item, index) => {
+              return {
+                ...item,
+                key: index,
+                time: item.time.replace('T', ' '),
+                angle: item.adjustAngle, // 返回的角度字段处理下
+              };
+            })
+          );
+        }
+      }
+    })();
+  }, [barCode]);
+
+  let [initialSlide, setInitialSlide] = useState(0);
+  function previewPoint(point) {
+    setPreviewVisible(true);
+    setPreviewDirection(point.direction);
+
+    let slideIndex = (isFront ? frontPoints: backPoints).findIndex( item => item.imagePath === point.imagePath);
+    setInitialSlide(slideIndex)
+  }
+
   return (
     <div>
-      {/* <div className="circles">
-        <Circle points={points} style={{margin: '0 50px'}} />
-        <Circle points={points} />
-      </div> */}
+      <div className="circles">
+        <Circle points={frontPoints} style={{ margin: '0 50px' }} />
+        <Circle points={backPoints} previewPoint={previewPoint} />
+      </div>
       <div className="bottom">
-        <Table columns={columns} pagination={false} dataSource={data} size="small" style={{ width: '49%' }} scroll={{ y: '40vh' }} />
+        <Table
+          bordered
+          columns={columns}
+          pagination={false}
+          dataSource={dataSource}
+          size="small"
+          style={{ width: '49%' }}
+          scroll={{ y: '40vh' }}
+          onRow={(record) => {
+            return {
+              onDoubleClick: (event) => {
+                previewPoint(record);
+              },
+            };
+          }}
+        />
         <div className="information flex" onClick={() => setPreviewVisible(true)}>
           <div className="flex-1">
             <p>轮圈条码</p>
@@ -135,17 +212,20 @@ function CheckView() {
             className="swiper"
             // onSlideChange={() => console.log('slide change')}
             // onSwiper={(swiper) => console.log(swiper)}
+            initialSlide={initialSlide}
             navigation={true}
             modules={[Navigation, Pagination]}
             pagination={{
               type: 'fraction',
             }}
           >
-            {new Array(5).fill(undefined).map((item, index) => {
+            {(isFront ? frontPoints : backPoints).map(({ angle }, index) => {
               return (
                 <SwiperSlide key={index}>
                   <div className="preview-item">
-                    <p className="detail">正面：50°</p>
+                    <p className="detail">
+                      {isFront ? '正面' : '反面'}：{angle}°
+                    </p>
                     <div className="img-box">
                       <img src="https://img0.baidu.com/it/u=2528674402,2721043688&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=330" alt="" />
                     </div>
