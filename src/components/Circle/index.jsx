@@ -14,8 +14,8 @@ export default function (props) {
 
     let canvas = canvasRef.current;
 
-    // let width = Math.min(300, Math.max(200, window.innerWidth / 3));
-    let width = 250;
+    // let width = Math.min(450, Math.max(200, window.innerWidth / 3));
+    let width = 350;
     let height = width;
     canvas.width = width;
     canvas.height = height;
@@ -44,13 +44,14 @@ export default function (props) {
     }
 
     // 画轮圈
-    // ctx.fillStyle = '#333';
-    // ctx.arc(width / 2, height / 2, width / 2, 0, Math.PI * 2, false);
-    // ctx.arc(width / 2, height / 2, width / 2 - tireWidth, Math.PI * 2, 0, true);
-    // ctx.fill();
+    ctx.fillStyle = '#333';
+    ctx.arc(width / 2, height / 2, width / 2, 0, Math.PI * 2, false);
+    ctx.arc(width / 2, height / 2, width / 2 - tireWidth, Math.PI * 2, 0, true);
+    ctx.fill();
 
     ctx.fillStyle = '#0c6cda';
 
+    let dblclickEventList = [];
     // 画扇区
     function drawSector(sectorIndex, points) {
       // angle = sectorIndex* +adjustAngel;
@@ -62,24 +63,31 @@ export default function (props) {
       path.arc(width / 2, height / 2, width / 2 - tireWidth, endMathAngle, startMathAngle, true);
       ctx.fill(path);
 
-      canvas.addEventListener('dblclick', (e) => {
+      let dblclickEvent = function (e) {
         let isInner = ctx.isPointInPath(path, e.offsetX, e.offsetY);
         if (isInner && !showing) {
           showing = true;
-          // console.log(points);
-          
+
           previewPoint(points[0]);
 
           setTimeout(() => {
             showing = false;
           }, 100);
         }
-      });
+      };
+      dblclickEventList.push(dblclickEvent);
+      canvas.addEventListener('dblclick', dblclickEvent);
     }
 
     for (let [index, points] of sectorMap) {
       drawSector(index, points);
     }
+
+    return function () {
+      dblclickEventList.forEach((event) => {
+        canvas.removeEventListener('dblclick', event);
+      });
+    };
   }, [points]);
 
   function getSectorMap(points) {
@@ -97,5 +105,5 @@ export default function (props) {
     return sectorMap;
   }
 
-  return <canvas ref={canvasRef} {...props}></canvas>;
+  return <canvas ref={canvasRef} style={props.style}></canvas>;
 }

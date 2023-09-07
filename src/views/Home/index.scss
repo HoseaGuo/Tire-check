@@ -1,15 +1,21 @@
 .wrapper {
   padding: 10px;
-  min-width: 800px;
+  // min-width: 800px;
   overflow: auto;
 }
 .circles {
   display: flex;
+  justify-content: center;
+  align-items: center;
+  > * {
+    margin: 0 20px;
+  }
 }
 .bottom {
-  margin-top: 20px;
+  margin-top: 30px;
   display: flex;
   justify-content: space-between;
+  // height: 30vh;
 }
 .flex {
   display: flex;
@@ -18,12 +24,44 @@
   flex: 1;
 }
 .information {
-  padding: 20px;
+  padding: 10px 20px;
   width: 49%;
   border-radius: 6px;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+  overflow: auto;
+  height: calc(200px + 39px);
+  .item {
+    margin: 10px 0;
+  }
+  .codes {
+    flex-wrap: wrap;
+    p {
+      // min-width: 100px;
+      // width: 300px;
+      margin-right: 20px;
+      height: 30px;
+      line-height: 30px;
+    }
+    p:last-child {
+      margin-right: 0;
+    }
+    input {
+      width: 200px;
+      border: none;
+      outline: none;
+      border-radius: 10px;
+      height: 20px;
+      background-color: #eee;
+      text-align: center;
+      color: #333;
+    }
+  }
   p {
-    margin: 20px 0;
+    // margin: 10px 0;
+  }
+  span {
+    margin-right: 20px;
+    display: inline-block;
   }
 }
 
@@ -35,7 +73,7 @@
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.9);
   display: flex;
-  .btn-close{
+  .btn-close {
     position: absolute;
     right: 20px;
     top: 20px;
@@ -46,18 +84,23 @@
 }
 .swiper {
   margin: auto;
-  .swiper-button-prev{
+  .swiper-button-prev {
     left: 10vw;
   }
-  .swiper-button-next{
+  .swiper-button-next {
     right: 10vw;
   }
   .swiper-button-prev,
   .swiper-button-next {
+    width: auto;
+    height: auto;
     color: #fff;
+    text-shadow: 0 0 5px #000;
+    padding: 4px 10px;
   }
-  .swiper-pagination{
+  .swiper-pagination {
     color: #fff;
+    text-shadow: 0 0 5px #000;
   }
 }
 
@@ -72,9 +115,11 @@
   .img-box {
     height: 80vh;
     display: flex;
+    > * {
+      margin: auto;
+    }
   }
   img {
-    margin: auto;
     max-height: 100%;
     max-width: 100%;
     user-select: none;

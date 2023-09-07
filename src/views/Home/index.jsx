@@ -1,6 +1,9 @@
-import { Tabs, Table } from 'antd';
+import { Tabs, Table, Input, Spin } from 'antd';
 import { Swiper, SwiperSlide, useSwiper } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper/modules';
+import Image from './Image';
+import Search from './Search';
+
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
@@ -43,125 +46,74 @@ const columns = [
   },
 ];
 
-//监听扫码枪
-/**
- *
- * @param {*} callback 回调函数
- */
-function eventListenerScanCode(callback) {
-  let barCode = '';
-  let lastTime = 0;
-  let timer;
-
-  // function ClearBarCode() {
-  //   barCode = '';
-  //   lastTime = 0;
-  // }
-
-  window.onkeypress = function (e) {
-    let lessTime = 80;
-
-    let currCode = e.keyCode || e.which || e.charCode;
-
-    let currTime = new Date().getTime();
-
-    if (currCode == 13) {
-      clearTimeout(timer);
-      scanComplete(barCode);
-    } else {
-      let realCode = String.fromCharCode(currCode);
-      if (currTime - lastTime <= lessTime) {
-        clearTimeout(timer);
-        // 扫码枪有效输入间隔毫秒
-        barCode += realCode;
-        // 防止一些扫码枪没有Enter事件触发，所以，在一秒后自动触发一下
-        timer = setTimeout(() => {
-          scanComplete(barCode);
-        }, 1000);
-      } else if (currTime - lastTime > lessTime) {
-        // 很长时间没有输入后，第一个按键作为第一个字符。
-        barCode = realCode;
-      }
-    }
-
-    lastTime = currTime;
-  };
-
-  function scanComplete(barCode) {
-    // 回车
-    if (barCode.length >= 16) {
-      console.log('扫码结果：' + barCode + '，长度：' + barCode.length);
-      //这里是根据我们二维码或条码的规则校验，增加准确度
-      // 扫码结果，做下一步业务处理
-      if (callback) callback(barCode);
-    }
-  }
-}
-
 function CheckView() {
   let [previewVisible, setPreviewVisible] = useState(false);
   let [dataSource, setDataSource] = useState([]);
-  // TRMG11G2903500259 和 TRMG11G2903500260
-  let [barCode, setBarCode] = useState('TRMG11G2903500259');
+  let [statistics, setStatistics] = useState([]);
+  let [codes, setCodes] = useState({});
+  let [searching, setSearching] = useState(false);
 
-  const data = new Array(12).fill(undefined).map((item, index) => {
-    return {
-      key: index + 1,
-      time: '2023-09-05 17:00:11',
-    };
-  });
+  let statisticsLabel = {
+    // group: '组号',
+    bubbleCount: '气泡数量',
+    contaminateCount: '污染数量',
+    extinctionBadnessCount: '消光数量',
+    holeCount: '孔洞数量',
+    sandCount: '沙粒数量',
+    scratchCount: '划伤数量',
+    totalCount: '缺点总数',
+  };
 
-  useEffect(() => {
-    // 添加扫码事件
-    eventListenerScanCode((barCode) => {
-      console.log(barCode);
-      setBarCode(barCode);
-    });
-  });
+  let frontPoints = dataSource.filter((item) => item.direction === 0).sort((a, b) => a.angle - b.angle);
 
-  let frontPoints = dataSource.filter((item) => item.direction === 0);
-  let backPoints = dataSource.filter((item) => item.direction === 1);
+  let backPoints = dataSource.filter((item) => item.direction === 1).sort((a, b) => a.angle - b.angle);
+
   let [previewDirection, setPreviewDirection] = useState(undefined);
   let isFront = previewDirection === 0;
 
-  useEffect(() => {
-    (async function () {
-      let { success, data } = await api.getInfoByQrCode(barCode);
-      if (success) {
-        // console.log(data);
-        if (data.code == '0') {
-          let { qrCodeImageInfos } = data.data;
-          // console.log(data.data)
+  async function handleSearch(barCode) {
+    setSearching(true)
+    let { success, data } = await api.getInfoByQrCode(barCode);
+    setSearching(false)
+    if (success) {
+      // console.log(data);
+      let { qrCodeImageInfos, checkStatistics, ...codes } = data;
+      // console.log(data.data)
 
-          setDataSource(
-            qrCodeImageInfos.map((item, index) => {
-              return {
-                ...item,
-                key: index,
-                time: item.time.replace('T', ' '),
-                angle: item.adjustAngle, // 返回的角度字段处理下
-              };
-            })
-          );
-        }
-      }
-    })();
-  }, [barCode]);
+      setCodes(codes);
+
+      setDataSource(
+        qrCodeImageInfos.map((item, index) => {
+          return {
+            ...item,
+            key: index,
+            time: item.time.replace('T', ' '), // 处理下时间的显示
+            angle: item.adjustAngle, // 返回的角度字段处理下
+          };
+        })
+      );
+
+      setStatistics(checkStatistics);
+    }
+  }
 
   let [initialSlide, setInitialSlide] = useState(0);
+  let [slideActiveIndex, setSlideActiveIndex] = useState(-1);
   function previewPoint(point) {
     setPreviewVisible(true);
     setPreviewDirection(point.direction);
-
-    let slideIndex = (isFront ? frontPoints: backPoints).findIndex( item => item.imagePath === point.imagePath);
-    setInitialSlide(slideIndex)
+    isFront = point.direction === 0;
+    let slideIndex = (isFront ? frontPoints : backPoints).findIndex((item) => item.imagePath === point.imagePath);
+    setInitialSlide(slideIndex);
+    setSlideActiveIndex(slideIndex);
   }
 
   return (
-    <div>
+    <Spin spinning={searching}>
       <div className="circles">
-        <Circle points={frontPoints} style={{ margin: '0 50px' }} />
+        <Circle points={frontPoints} previewPoint={previewPoint} />
         <Circle points={backPoints} previewPoint={previewPoint} />
+        <Search onSearch={handleSearch}/>
       </div>
       <div className="bottom">
         <Table
@@ -171,7 +123,7 @@ function CheckView() {
           dataSource={dataSource}
           size="small"
           style={{ width: '49%' }}
-          scroll={{ y: '40vh' }}
+          scroll={{ y: '200px' }}
           onRow={(record) => {
             return {
               onDoubleClick: (event) => {
@@ -180,16 +132,35 @@ function CheckView() {
             };
           }}
         />
-        <div className="information flex" onClick={() => setPreviewVisible(true)}>
-          <div className="flex-1">
-            <p>轮圈条码</p>
-            <p>轮圈型号</p>
-            <p>轮圈品号</p>
+        <div className="information">
+          <div className="item codes flex">
+            <p>
+              轮圈条码 <input type="text" readOnly defaultValue={codes.qrCode} />
+            </p>
+            <p>
+              轮圈型号 <input type="text" readOnly defaultValue={codes.model} />
+            </p>
+            <p>
+              轮圈品号 <input type="text" readOnly defaultValue={codes.articleNumber} />
+            </p>
           </div>
-          <div className="flex-1">
-            <p>统计：</p>
-            <p>ssasfds</p>
-          </div>
+          {statistics
+            .sort((a, b) => a.group - b.group)
+            .map((item, index) => {
+              return (
+                <div className="item" key={index}>
+                  <p>机组{item.group}</p>
+                  {Object.entries(statisticsLabel).map(([key, name]) => {
+                    return (
+                      <span key={name}>
+                        <label>{name}：</label>
+                        {item[key]}
+                      </span>
+                    );
+                  })}
+                </div>
+              );
+            })}
         </div>
       </div>
       {previewVisible && (
@@ -210,7 +181,9 @@ function CheckView() {
           </button>
           <Swiper
             className="swiper"
-            // onSlideChange={() => console.log('slide change')}
+            onSlideChange={({ activeIndex }) => {
+              setSlideActiveIndex(activeIndex);
+            }}
             // onSwiper={(swiper) => console.log(swiper)}
             initialSlide={initialSlide}
             navigation={true}
@@ -219,7 +192,7 @@ function CheckView() {
               type: 'fraction',
             }}
           >
-            {(isFront ? frontPoints : backPoints).map(({ angle }, index) => {
+            {(isFront ? frontPoints : backPoints).map(({ angle, imagePath }, index) => {
               return (
                 <SwiperSlide key={index}>
                   <div className="preview-item">
@@ -227,7 +200,7 @@ function CheckView() {
                       {isFront ? '正面' : '反面'}：{angle}°
                     </p>
                     <div className="img-box">
-                      <img src="https://img0.baidu.com/it/u=2528674402,2721043688&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=330" alt="" />
+                      <Image imagePath={imagePath} init={index === slideActiveIndex} />
                     </div>
                   </div>
                 </SwiperSlide>
@@ -236,7 +209,7 @@ function CheckView() {
           </Swiper>
         </div>
       )}
-    </div>
+    </Spin>
   );
 }
 
@@ -256,7 +229,25 @@ const items = [
     children: <SettingView />,
   },
 ];
+
 export default function () {
+  /* 
+    搜索逻辑
+
+
+    输入框为激活状态：
+      输入（复制什么的）后，
+      enter键/搜索按钮/2秒后没有输入内容，触发查询
+
+    输入框为非激活状态：
+      扫码枪的内容放到输入框，
+      带enter键的马上查询，或者2秒后自动查询
+
+    输入框
+    监听输入框内容变化，如果输入框内容更新，且两秒后没有输入，就触发查询。
+    查询成功后，输入框内容清空
+  */
+
   return (
     <div className="wrapper">
       <Tabs defaultActiveKey="1" type="card" items={items} />

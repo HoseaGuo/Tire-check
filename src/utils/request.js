@@ -33,8 +33,10 @@ export default function createRequest(config) {
           let showErrorMsg = config.hasOwnProperty('showErrorMsg') ? config.showErrorMsg : true;
 
           if (res.status === 200) {
-            result.success = true;
-            result.data = res.data;
+            if(res.data.code === '0'){
+              result.success = true;
+              result.data = res.data.data;
+            }
           } else {
             if (showErrorMsg) alert(result.msg);
           }
