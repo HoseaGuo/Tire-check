@@ -3,6 +3,7 @@ import { Swiper, SwiperSlide, useSwiper } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper/modules';
 import Image from './Image';
 import Search from './Search';
+import SettingView from './SettingView';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -113,7 +114,7 @@ function CheckView() {
       <div className="circles">
         <Circle points={frontPoints} previewPoint={previewPoint} />
         <Circle points={backPoints} previewPoint={previewPoint} />
-        <Search onSearch={handleSearch}/>
+        <Search onSearch={handleSearch} />
       </div>
       <div className="bottom">
         <Table
@@ -213,10 +214,6 @@ function CheckView() {
   );
 }
 
-function SettingView() {
-  return <div>setting</div>;
-}
-
 const items = [
   {
     key: '1',
@@ -249,8 +246,11 @@ export default function () {
   */
 
   return (
-    <div className="wrapper">
-      <Tabs defaultActiveKey="1" type="card" items={items} />
-    </div>
+    <>
+      <h1>轮胎检测结果查询系统</h1>
+      <div className="wrapper">
+        <Tabs defaultActiveKey="2" type="card" items={items} />
+      </div>
+    </>
   );
 }

@@ -7,7 +7,7 @@ const request = createRequest({
 
 export default {
   // 通过二维码查询图片信息
-  getInfoByQrCode(qrCode){
+  getInfoByQrCode(qrCode) {
     return request({
       url: "/tyre/check/getInfoByQrCode",
       data: {
@@ -16,12 +16,26 @@ export default {
     })
   },
   // 查询一张图片
-  getImage(imagePath){
+  getImage(imagePath) {
     return request({
       url: "/tyre/check/getImage",
       data: {
         imagePath
       },
+    })
+  },
+  // 查询角度调整信息
+  getAngelAdjustInfo() {
+    return request({
+      url: "/tyre/check/getAngelAdjustInfo",
+    })
+  },
+  // /tyre/check/updateAngelAdjustInfo
+  updateAngelAdjustInfo(data) {
+    return request({
+      url: "/tyre/check/updateAngelAdjustInfo",
+      data,
+      method: 'post'
     })
   },
 };
