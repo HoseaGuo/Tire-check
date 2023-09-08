@@ -4,7 +4,7 @@ import './index.scss';
 export default function (props) {
   let canvasRef = useRef(null);
 
-  let { points, previewPoint } = props;
+  let { points, previewPoint, selectedPoint } = props;
 
   let showing = false;
   let sectorNumber = 31; // 扇区数量
@@ -14,8 +14,7 @@ export default function (props) {
 
     let canvas = canvasRef.current;
 
-    // let width = Math.min(450, Math.max(200, window.innerWidth / 3));
-    let width = 400;
+    let width = 440;
     let height = width;
     canvas.width = width;
     canvas.height = height;
@@ -45,13 +44,17 @@ export default function (props) {
 
     let arcRadius = (width / 5) * 2;
 
+    ctx.fillStyle = '#666';
+
     // 字体大小
-    ctx.font = 'normal 12px test';
+    ctx.font = 'normal 26px test';
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'center';
 
-    ctx.fillStyle = '#666';
-    ctx.lne
+    // 画出中间文字
+    ctx.fillText(props.centerText, width / 2, width / 2);
+
+    ctx.font = 'normal 12px test';
 
     // 画圈圈上的度数刻度
     for (let text = 0; text < 360; text += 15) {
@@ -61,8 +64,7 @@ export default function (props) {
       textX = (arcRadius + 20) * Math.cos(angle) + width / 2;
       textY = (arcRadius + 20) * Math.sin(angle) + width / 2;
       // 画字
-      ctx.fillText(text, textX, textY); 
-
+      ctx.fillText(text, textX, textY);
 
       // 画刻度
       lineStartX = (arcRadius + 0) * Math.cos(angle) + width / 2;
@@ -90,29 +92,47 @@ export default function (props) {
     let dblclickEventList = [];
     // 画扇区
     function drawSector(sectorIndex, points) {
-      // angle = sectorIndex* +adjustAngel;
-      // let startMathAngle = ((angle - pointWidthAngle / 2) / 180) * Math.PI;
-      let startMathAngle = ((Math.PI * 2) / sectorNumber) * sectorIndex + adjustAngel;
-      let endMathAngle = ((Math.PI * 2) / sectorNumber) * (sectorIndex + 1) + adjustAngel;
-      let path = new Path2D();
-      path.arc(width / 2, height / 2, arcRadius, startMathAngle, endMathAngle, false);
-      path.arc(width / 2, height / 2, arcRadius - tireWidth, endMathAngle, startMathAngle, true);
-      ctx.fill(path);
-
-      let dblclickEvent = function (e) {
-        let isInner = ctx.isPointInPath(path, e.offsetX, e.offsetY);
-        if (isInner && !showing) {
-          showing = true;
-
-          previewPoint(points[0]);
-
-          setTimeout(() => {
-            showing = false;
-          }, 100);
+      // 如果有选择的点，则只画选择的点
+      if (selectedPoint) {
+        let includeSelectedPoint = points.some((item) => {
+          if (item.imagePath === selectedPoint.imagePath) {
+            return true;
+          }
+        });
+        if (includeSelectedPoint) {
+          points = [selectedPoint];
+        } else {
+          points = [];
         }
-      };
-      dblclickEventList.push(dblclickEvent);
-      canvas.addEventListener('dblclick', dblclickEvent);
+      }
+      let pointNumber = points.length;
+      let eachSplitSectorWidth = tireWidth / pointNumber;
+      points.forEach((point, index) => {
+        // 不同类型有不同的颜色
+        ctx.fillStyle = point.ngTypeColor;
+        let startMathAngle = ((Math.PI * 2) / sectorNumber) * sectorIndex + (adjustAngel / 180) * Math.PI;
+        let endMathAngle = ((Math.PI * 2) / sectorNumber) * (sectorIndex + 1) + (adjustAngel / 180) * Math.PI;
+        let path = new Path2D();
+        path.arc(width / 2, height / 2, arcRadius - eachSplitSectorWidth * index, startMathAngle, endMathAngle, false);
+        path.arc(width / 2, height / 2, arcRadius - eachSplitSectorWidth * (index + 1), endMathAngle, startMathAngle, true);
+        ctx.fill(path);
+
+        let dblclickEvent = function (e) {
+          let isInner = ctx.isPointInPath(path, e.offsetX, e.offsetY);
+          if (isInner && !showing) {
+            showing = true;
+
+            previewPoint(point);
+
+            setTimeout(() => {
+              showing = false;
+            }, 100);
+          }
+        };
+
+        dblclickEventList.push(dblclickEvent);
+        canvas.addEventListener('dblclick', dblclickEvent);
+      });
     }
 
     for (let [index, points] of sectorMap) {

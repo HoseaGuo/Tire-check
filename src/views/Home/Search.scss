@@ -1,4 +1,5 @@
 .search-wrapper{
+  // margin-left: 5vw !important;
   max-width: 300px;
   min-width: 250px;
   flex: 1;
@@ -7,8 +8,15 @@
 .messages{
   margin: 10px 0 0;
   padding: 10px;
-  height: 300px;
+  height: 350px;
   overflow: auto;
   font-size: 14px;
   line-height: 1.8;
+  color: #666;
+  .success{
+    color: #5ec82a;
+  }
+  .failed{
+    color: #d52929;
+  }
 }

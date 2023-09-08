@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './Search.scss';
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined, BarcodeOutlined } from '@ant-design/icons';
 import { Input, Spin } from 'antd';
 import { useEffect } from 'react';
 import { useRef } from 'react';
@@ -10,7 +10,7 @@ export default function ({ onSearch }) {
   // TRMG11G2903500259 和 TRMG11G2903500260
   let [value, setValue] = useState('');
   const [loading, setLoading] = useState(false);
-  const input = useRef(null);
+  const inputRef = useRef(null);
 
   const [record, setRecord] = useState([]);
 
@@ -27,26 +27,47 @@ export default function ({ onSearch }) {
     if (value.trim()) {
       timer = setTimeout(() => {
         setValue('');
-        onSearch(value);
+        onSearch(value, (success) => {
+          setRecord([
+            {
+              barCode: value,
+              success,
+            },
+            ...record,
+          ]);
+        });
         setRecord([value, ...record]);
       }, 1000);
     }
   }, [value]);
 
   useEffect(() => {
-    if (input.current) {
-      window.addEventListener('keypress', (e) => {
+    function event(e) {
+      if (e.target.tagName.toLowerCase() === 'input') {
         let currCode = e.keyCode || e.which || e.charCode;
         // 回车键
         if (currCode == 13) {
           clearTimeout(timer);
-          onSearch(value);
+          let barCode = e.target.value;
+          onSearch(barCode, (success) => {
+            setRecord([
+              {
+                barCode,
+                success,
+              },
+              ...record,
+            ]);
+          });
           setValue('');
-          setRecord([value, ...record]);
         }
-      });
+      }
     }
-  }, [input]);
+    window.addEventListener('keypress', event);
+
+    return function () {
+      window.removeEventListener('keypress', event);
+    };
+  }, [inputRef, record]);
 
   return (
     <div className="search-wrapper">
@@ -58,15 +79,27 @@ export default function ({ onSearch }) {
               value = e.target.value;
               setValue(e.target.value);
             }}
-            placeholder=""
+            prefix={<BarcodeOutlined />}
             suffix={<SearchOutlined />}
-            ref={input}
+            ref={inputRef}
+            style={{ fontSize: '18px' }}
+            size="large"
+            className="search-input"
           />
         </Spin>
       </div>
       <div className="messages">
         {record.map((item, index) => {
-          return <p key={index}>查询：{item}</p>;
+          return (
+            <p key={index}>
+              {item.barCode ? (
+                <>
+                  <span className={item.success ? 'success' : 'failed'}>{item.success ? '查询成功' : '查询失败'}</span>&nbsp;&nbsp;
+                  <span>{item.barCode}</span>
+                </>
+              ) : null}
+            </p>
+          );
         })}
       </div>
     </div>
@@ -123,8 +156,6 @@ function eventListenerScanCode(callback) {
     }
   }
 }
-
-
 
 /* 
   搜索逻辑

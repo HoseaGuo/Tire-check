@@ -1,4 +1,4 @@
-import { Tabs, Table, Input, Spin } from 'antd';
+import { Tabs, Table, Input, Spin, Tag } from 'antd';
 import { Swiper, SwiperSlide, useSwiper } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper/modules';
 import Image from './Image';
@@ -15,17 +15,62 @@ import Circle from '../../components/Circle';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import api from '../../api';
-import { useRef } from 'react';
+
+const ngType = [
+  {
+    code: 1,
+    desc: '消光',
+    color: '#fc8b40',
+  },
+  {
+    code: 2,
+    desc: '气泡',
+    color: '#406fb9',
+  },
+  {
+    code: 3,
+    desc: '孔洞',
+    color: '#989898',
+  },
+  {
+    code: 4,
+    desc: '污染',
+    color: '#245f71',
+  },
+  {
+    code: 5,
+    desc: '划伤',
+    color: '#bc5d5d',
+  },
+  {
+    code: 6,
+    desc: '沙粒',
+    color: '#c08a18',
+  },
+];
+
+function getNgTypeColor(code) {
+  return ngType.find((item) => item.code === code).color;
+}
 
 const columns = [
   {
     title: '时间',
     dataIndex: 'time',
-    width: 150,
+    width: 170,
+    sorter: (a, b) => {
+      return new Date(a.time).getTime() - new Date(b.time).getTime();
+    },
   },
   {
     title: '类型',
-    dataIndex: 'ngTypeDesc',
+    render: function (text, record, index) {
+      return (
+        <Tag bordered={false} color={record.ngTypeColor}>
+          {record.ngTypeDesc}
+        </Tag>
+      );
+    },
   },
   {
     title: '角度',
@@ -72,10 +117,10 @@ function CheckView() {
   let [previewDirection, setPreviewDirection] = useState(undefined);
   let isFront = previewDirection === 0;
 
-  async function handleSearch(barCode) {
-    setSearching(true)
+  async function handleSearch(barCode, callback) {
+    setSearching(true);
     let { success, data } = await api.getInfoByQrCode(barCode);
-    setSearching(false)
+    setSearching(false);
     if (success) {
       // console.log(data);
       let { qrCodeImageInfos, checkStatistics, ...codes } = data;
@@ -84,18 +129,31 @@ function CheckView() {
       setCodes(codes);
 
       setDataSource(
-        qrCodeImageInfos.map((item, index) => {
-          return {
-            ...item,
-            key: index,
-            time: item.time.replace('T', ' '), // 处理下时间的显示
-            angle: item.adjustAngle, // 返回的角度字段处理下
-          };
-        })
+        qrCodeImageInfos
+          .map((item, index) => {
+            return {
+              ...item,
+              key: index,
+              time: item.time.replace('T', ' '), // 处理下时间的显示
+              angle: item.adjustAngle, // 返回的角度字段处理下
+              ngTypeColor: getNgTypeColor(item.ngTypeCode), // 类型颜色
+            };
+          })
+          .sort((a, b) => {
+            return new Date(b.time).getTime() - new Date(a.time).getTime();
+          })
       );
 
       setStatistics(checkStatistics);
+    } else {
+      // 清空
+      setCodes([]);
+      setDataSource([]);
+      setCodes({});
     }
+
+    // 执行回调
+    callback(success);
   }
 
   let [initialSlide, setInitialSlide] = useState(0);
@@ -109,12 +167,34 @@ function CheckView() {
     setSlideActiveIndex(slideIndex);
   }
 
+  const [selectedPoint, setSelectedPoint] = useState(null);
+
+  useEffect(() => {
+    function clickEvent() {
+      setSelectedPoint(null);
+    }
+    window.addEventListener('click', clickEvent);
+    return function () {
+      window.removeEventListener('click', clickEvent);
+    };
+  });
+
   return (
     <Spin spinning={searching}>
       <div className="circles">
-        <Circle points={frontPoints} previewPoint={previewPoint} />
-        <Circle points={backPoints} previewPoint={previewPoint} />
-        <Search onSearch={handleSearch} />
+        <Circle points={frontPoints} previewPoint={previewPoint} centerText="正面" selectedPoint={selectedPoint} />
+        <div className="legend">
+          {ngType.map((item, index) => {
+            return (
+              <div className="item" key={index}>
+                <b style={{ backgroundColor: item.color }}></b>
+                <span>{item.desc}</span>
+              </div>
+            );
+          })}
+        </div>
+        <Circle points={backPoints} previewPoint={previewPoint} centerText="反面" selectedPoint={selectedPoint} />
+        <Search onSearch={handleSearch}/>
       </div>
       <div className="bottom">
         <Table
@@ -124,44 +204,53 @@ function CheckView() {
           dataSource={dataSource}
           size="small"
           style={{ width: '49%' }}
-          scroll={{ y: '200px' }}
+          scroll={{ y: '330px' }}
           onRow={(record) => {
             return {
               onDoubleClick: (event) => {
                 previewPoint(record);
               },
+              onClick: (event) => {
+                // 阻止冒泡
+                event.stopPropagation();
+                setSelectedPoint(record);
+              },
             };
           }}
         />
         <div className="information">
-          <div className="item codes flex">
-            <p>
-              轮圈条码 <input type="text" readOnly defaultValue={codes.qrCode} />
-            </p>
-            <p>
-              轮圈型号 <input type="text" readOnly defaultValue={codes.model} />
-            </p>
-            <p>
-              轮圈品号 <input type="text" readOnly defaultValue={codes.articleNumber} />
-            </p>
-          </div>
-          {statistics
-            .sort((a, b) => a.group - b.group)
-            .map((item, index) => {
-              return (
-                <div className="item" key={index}>
-                  <p>机组{item.group}</p>
-                  {Object.entries(statisticsLabel).map(([key, name]) => {
-                    return (
-                      <span key={name}>
-                        <label>{name}：</label>
-                        {item[key]}
-                      </span>
-                    );
-                  })}
-                </div>
-              );
-            })}
+          {codes.qrCode && (
+            <>
+              <div className="item codes flex">
+                <p>
+                  轮圈条码 <input type="text" readOnly defaultValue={codes.qrCode} />
+                </p>
+                <p>
+                  轮圈型号 <input type="text" readOnly defaultValue={codes.model} />
+                </p>
+                <p>
+                  轮圈品号 <input type="text" readOnly defaultValue={codes.articleNumber} />
+                </p>
+              </div>
+              {statistics
+                .sort((a, b) => a.group - b.group)
+                .map((item, index) => {
+                  return (
+                    <div className="item" key={index}>
+                      <p>机组{item.group}</p>
+                      {Object.entries(statisticsLabel).map(([key, name]) => {
+                        return (
+                          <span key={name}>
+                            <label>{name}：</label>
+                            {item[key]}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+            </>
+          )}
         </div>
       </div>
       {previewVisible && (
@@ -198,7 +287,7 @@ function CheckView() {
                 <SwiperSlide key={index}>
                   <div className="preview-item">
                     <p className="detail">
-                      {isFront ? '正面' : '反面'}：{angle}
+                      {isFront ? '正面' : '反面'}：{angle}°
                     </p>
                     <div className="img-box">
                       <Image imagePath={imagePath} init={index === slideActiveIndex} />
@@ -230,9 +319,15 @@ const items = [
 export default function () {
   return (
     <>
-      <h1>轮胎检测结果查询系统</h1>
       <div className="wrapper">
-        <Tabs defaultActiveKey="1" type="card" items={items} />
+        <Tabs
+          defaultActiveKey="1"
+          items={items}
+          centered
+          tabBarExtraContent={{
+            left: <h1>永湖集团轮圈检验查询系统</h1>,
+          }}
+        />
       </div>
     </>
   );
