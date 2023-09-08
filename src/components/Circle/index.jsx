@@ -15,13 +15,13 @@ export default function (props) {
     let canvas = canvasRef.current;
 
     // let width = Math.min(450, Math.max(200, window.innerWidth / 3));
-    let width = 350;
+    let width = 400;
     let height = width;
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext('2d');
     // 轮胎边缘宽度。
-    const tireWidth = width / 12;
+    const tireWidth = width / 16;
     // 点的宽度(角度)
     const pointWidthAngle = 6;
 
@@ -43,10 +43,46 @@ export default function (props) {
         break;
     }
 
+    let arcRadius = (width / 5) * 2;
+
+    // 字体大小
+    ctx.font = 'normal 12px test';
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center';
+
+    ctx.fillStyle = '#666';
+    ctx.lne
+
+    // 画圈圈上的度数刻度
+    for (let text = 0; text < 360; text += 15) {
+      let textX, textY, lineStartX, lineStartY, lineEndX, lineEndY;
+      let angle = adjustAngel + text;
+      angle = (angle / 180) * Math.PI;
+      textX = (arcRadius + 20) * Math.cos(angle) + width / 2;
+      textY = (arcRadius + 20) * Math.sin(angle) + width / 2;
+      // 画字
+      ctx.fillText(text, textX, textY); 
+
+
+      // 画刻度
+      lineStartX = (arcRadius + 0) * Math.cos(angle) + width / 2;
+      lineStartY = (arcRadius + 0) * Math.sin(angle) + width / 2;
+
+      lineEndX = (arcRadius + 7) * Math.cos(angle) + width / 2;
+      lineEndY = (arcRadius + 7) * Math.sin(angle) + width / 2;
+
+      ctx.beginPath();
+      ctx.moveTo(lineStartX, lineStartY);
+      ctx.lineTo(lineEndX, lineEndY);
+      ctx.stroke();
+    }
+
+    ctx.beginPath();
     // 画轮圈
     ctx.fillStyle = '#333';
-    ctx.arc(width / 2, height / 2, width / 2, 0, Math.PI * 2, false);
-    ctx.arc(width / 2, height / 2, width / 2 - tireWidth, Math.PI * 2, 0, true);
+
+    ctx.arc(width / 2, height / 2, arcRadius, 0, Math.PI * 2, false);
+    ctx.arc(width / 2, height / 2, arcRadius - tireWidth, Math.PI * 2, 0, true);
     ctx.fill();
 
     ctx.fillStyle = '#0c6cda';
@@ -59,8 +95,8 @@ export default function (props) {
       let startMathAngle = ((Math.PI * 2) / sectorNumber) * sectorIndex + adjustAngel;
       let endMathAngle = ((Math.PI * 2) / sectorNumber) * (sectorIndex + 1) + adjustAngel;
       let path = new Path2D();
-      path.arc(width / 2, height / 2, width / 2, startMathAngle, endMathAngle, false);
-      path.arc(width / 2, height / 2, width / 2 - tireWidth, endMathAngle, startMathAngle, true);
+      path.arc(width / 2, height / 2, arcRadius, startMathAngle, endMathAngle, false);
+      path.arc(width / 2, height / 2, arcRadius - tireWidth, endMathAngle, startMathAngle, true);
       ctx.fill(path);
 
       let dblclickEvent = function (e) {

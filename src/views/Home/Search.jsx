@@ -59,11 +59,6 @@ export default function ({ onSearch }) {
               setValue(e.target.value);
             }}
             placeholder=""
-            // onSearch={() => {
-            //   clearTimeout(timer);
-            //   onSearch(value);
-            //   setValue('');
-            // }}
             suffix={<SearchOutlined />}
             ref={input}
           />
@@ -128,3 +123,22 @@ function eventListenerScanCode(callback) {
     }
   }
 }
+
+
+
+/* 
+  搜索逻辑
+
+
+  输入框为激活状态：
+    输入（复制什么的）后，
+    enter键/搜索按钮/2秒后没有输入内容，触发查询
+
+  输入框为非激活状态：
+    扫码枪的内容放到输入框，
+    带enter键的马上查询，或者2秒后自动查询
+
+  输入框
+  监听输入框内容变化，如果输入框内容更新，且两秒后没有输入，就触发查询。
+  查询成功后，输入框内容清空
+*/

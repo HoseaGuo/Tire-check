@@ -30,11 +30,11 @@ export default function SettingView() {
     if (success) {
       setType(0);
       setCameraData(values);
-      message.success("修改成功", 2)
+      message.success("修改成功", 1)
     }
   };
 
-  async function getAngelAdjustInfo() {
+  async function getAngelAdjustInfo(isRefresh) {
     setLoading(true);
     let { success, data } = await api.getAngelAdjustInfo();
 
@@ -43,7 +43,9 @@ export default function SettingView() {
     }, 1000)
 
     if (success) {
-      console.log(data)
+      if(isRefresh){
+        message.success("刷新成功", 1)
+      }
       setCameraData(data)
     }
   }
@@ -74,12 +76,12 @@ export default function SettingView() {
                   key={key}
                   rules={[{ required: true, message: '不能为空' }]}
                 >
-                  <InputNumber min={0} max={360} />
+                  <InputNumber min={-360} max={360} />
                 </Form.Item>
               })
             }
           </Col>
-          <Col span={6} offset={1}>
+          <Col span={6} offset={2}>
             {
               Object.entries(fields2).map(([key, value]) => {
                 return <Form.Item
@@ -88,7 +90,7 @@ export default function SettingView() {
                   key={key}
                   rules={[{ required: true, message: '不能为空' }]}
                 >
-                  <InputNumber min={0} max={360} />
+                  <InputNumber min={-360} max={360} />
                 </Form.Item>
               })
             }
@@ -100,7 +102,7 @@ export default function SettingView() {
         {
           type === 0 ?
             <>
-              <Button key={'refresh'} type="default" onClick={getAngelAdjustInfo}>刷新</Button>
+              <Button key={'refresh'} type="default" onClick={() => {getAngelAdjustInfo(true)}}>刷新</Button>
               <Button key={'edit'} type="primary" onClick={() => setType(1)}>编辑</Button>
             </> :
             <>

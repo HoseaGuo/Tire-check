@@ -198,7 +198,7 @@ function CheckView() {
                 <SwiperSlide key={index}>
                   <div className="preview-item">
                     <p className="detail">
-                      {isFront ? '正面' : '反面'}：{angle}°
+                      {isFront ? '正面' : '反面'}：{angle}
                     </p>
                     <div className="img-box">
                       <Image imagePath={imagePath} init={index === slideActiveIndex} />
@@ -228,28 +228,11 @@ const items = [
 ];
 
 export default function () {
-  /* 
-    搜索逻辑
-
-
-    输入框为激活状态：
-      输入（复制什么的）后，
-      enter键/搜索按钮/2秒后没有输入内容，触发查询
-
-    输入框为非激活状态：
-      扫码枪的内容放到输入框，
-      带enter键的马上查询，或者2秒后自动查询
-
-    输入框
-    监听输入框内容变化，如果输入框内容更新，且两秒后没有输入，就触发查询。
-    查询成功后，输入框内容清空
-  */
-
   return (
     <>
       <h1>轮胎检测结果查询系统</h1>
       <div className="wrapper">
-        <Tabs defaultActiveKey="2" type="card" items={items} />
+        <Tabs defaultActiveKey="1" type="card" items={items} />
       </div>
     </>
   );
