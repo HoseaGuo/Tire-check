@@ -21,24 +21,29 @@ export default function ({ onSearch }) {
     });
   });
 
+
+  function fetchSearch(barCode) {
+    barCode = barCode.trim();
+    if (barCode) {
+      setValue('');
+      onSearch(barCode, (success) => {
+        setRecord([
+          {
+            barCode,
+            success,
+          },
+          ...record,
+        ].slice(0, 100));
+      });
+    }
+  }
+
   useEffect(() => {
     clearTimeout(timer);
 
-    if (value.trim()) {
-      timer = setTimeout(() => {
-        setValue('');
-        onSearch(value, (success) => {
-          setRecord([
-            {
-              barCode: value,
-              success,
-            },
-            ...record,
-          ]);
-        });
-        setRecord([value, ...record]);
-      }, 1000);
-    }
+    timer = setTimeout(() => {
+      fetchSearch(value);
+    }, 1000);
   }, [value]);
 
   useEffect(() => {
@@ -49,16 +54,7 @@ export default function ({ onSearch }) {
         if (currCode == 13) {
           clearTimeout(timer);
           let barCode = e.target.value;
-          onSearch(barCode, (success) => {
-            setRecord([
-              {
-                barCode,
-                success,
-              },
-              ...record,
-            ]);
-          });
-          setValue('');
+          fetchSearch(barCode);
         }
       }
     }

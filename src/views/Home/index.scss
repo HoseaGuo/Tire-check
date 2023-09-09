@@ -52,6 +52,9 @@ h1 {
   display: flex;
   justify-content: space-between;
   // height: 30vh;
+  >*{
+    width: 49.5%;
+  }
 }
 .flex {
   display: flex;
@@ -61,7 +64,6 @@ h1 {
 }
 .information {
   padding: 10px 20px;
-  width: 49%;
   border-radius: 6px;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
   overflow: auto;

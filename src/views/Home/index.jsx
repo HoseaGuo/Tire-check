@@ -194,7 +194,7 @@ function CheckView() {
           })}
         </div>
         <Circle points={backPoints} previewPoint={previewPoint} centerText="反面" selectedPoint={selectedPoint} />
-        <Search onSearch={handleSearch}/>
+        <Search onSearch={handleSearch} />
       </div>
       <div className="bottom">
         <Table
@@ -203,7 +203,6 @@ function CheckView() {
           pagination={false}
           dataSource={dataSource}
           size="small"
-          style={{ width: '49%' }}
           scroll={{ y: '330px' }}
           onRow={(record) => {
             return {
@@ -282,12 +281,12 @@ function CheckView() {
               type: 'fraction',
             }}
           >
-            {(isFront ? frontPoints : backPoints).map(({ angle, imagePath }, index) => {
+            {(isFront ? frontPoints : backPoints).map(({ angle, imagePath, ngTypeDesc }, index) => {
               return (
                 <SwiperSlide key={index}>
                   <div className="preview-item">
                     <p className="detail">
-                      {isFront ? '正面' : '反面'}：{angle}°
+                      {isFront ? '正面' : '反面'}： <span>{angle}°</span>&nbsp;&nbsp;<span>{ngTypeDesc}</span>
                     </p>
                     <div className="img-box">
                       <Image imagePath={imagePath} init={index === slideActiveIndex} />
