@@ -7,7 +7,7 @@ export default function (props) {
   let { points, previewPoint, selectedPoint } = props;
 
   let showing = false;
-  let sectorNumber = 31; // 扇区数量
+  let sectorNumber = 30; // 扇区数量
 
   useEffect(() => {
     let sectorMap = getSectorMap(points);
