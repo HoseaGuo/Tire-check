@@ -18,6 +18,11 @@ import api from '../../api';
 
 const ngType = [
   {
+    code: 0,
+    desc: '未知',
+    color: '#eee'
+  },
+  {
     code: 1,
     desc: '消光',
     color: '#fc8b40',
