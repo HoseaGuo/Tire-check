@@ -14,7 +14,7 @@ export default function (props) {
 
     let canvas = canvasRef.current;
 
-    let width = 440;
+    let width = 460;
     let height = width;
     canvas.width = width;
     canvas.height = height;
