@@ -14,7 +14,7 @@ export default function (props) {
 
     let canvas = canvasRef.current;
 
-    let width = 440;
+    let width = 460;
     let height = width;
     canvas.width = width;
     canvas.height = height;
@@ -47,14 +47,14 @@ export default function (props) {
     ctx.fillStyle = '#666';
 
     // 字体大小
-    ctx.font = 'normal 26px test';
+    ctx.font = 'normal 30px test';
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'center';
 
     // 画出中间文字
     ctx.fillText(props.centerText, width / 2, width / 2);
 
-    ctx.font = 'normal 12px test';
+    ctx.font = 'normal 14px test';
 
     // 画圈圈上的度数刻度
     for (let text = 0; text < 360; text += 15) {

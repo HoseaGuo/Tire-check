@@ -4,6 +4,7 @@ import { Pagination, Navigation } from 'swiper/modules';
 import Image from './Image';
 import Search from './Search';
 import SettingView from './SettingView';
+import PreviewImage from '../../components/PreviewImage';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -257,6 +258,7 @@ function CheckView() {
           )}
         </div>
       </div>
+      <PreviewImage />
       {previewVisible && (
         <div className="preview-image">
           <button
@@ -273,7 +275,7 @@ function CheckView() {
               ></path>
             </svg>
           </button>
-          <Swiper
+          {/* <Swiper
             className="swiper"
             onSlideChange={({ activeIndex }) => {
               setSlideActiveIndex(activeIndex);
@@ -300,7 +302,8 @@ function CheckView() {
                 </SwiperSlide>
               );
             })}
-          </Swiper>
+          </Swiper> */}
+
         </div>
       )}
     </Spin>
