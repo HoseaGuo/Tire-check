@@ -1,172 +1,75 @@
+import { useState, forwardRef, useImperativeHandle } from 'react';
+import { PhotoProvider, PhotoView } from 'react-photo-view';
+import 'react-photo-view/dist/react-photo-view.css';
+import './index.scss';
+import Image from './Image';
 
-import { useRef } from 'react'
-import { useEffect, forwardRef, useImperativeHandle } from 'react'
+/** react-photo-view使用文档：https://react-photo-view.vercel.app/docs/getting-started */
 
-import { Gallery, Item, useGallery } from 'react-photoswipe-gallery'
-import 'photoswipe/dist/photoswipe.css'
-import "./index.scss"
-import { useState } from 'react'
-
-
-let options = {
-  wheelToZoom: true,
-  // zoom: true,
-  bgOpacity: 0.7,
-  preload: [0],
-}
-
-
-export default function () {
-  let GalleryContentRef = useRef(null);
+export default forwardRef(function (props, ref) {
+  let { images } = props;
+  
+  let [visible, setVisible] = useState(false);
   let [activeIndex, setActiveIndex] = useState(-1);
 
-  function handleOpen() {
-    GalleryContentRef.current.open(0);
-  }
 
-  function handleChange(pswp) {
-    pswp.on('change', (e, b) => {
-      console.log(e)
-      console.log(b)
-    })
-    pswp.on('contentActivate', ({ content }) => {
-      // content becomes active (the current slide)
-      // can be default prevented
-      console.log('contentActivate', content);
-      setActiveIndex(content.index);
-    });
-    // pswp.on('pointerMove', (e) => e.preventDefault())
-    // pswp.on('pointerUp', (e) => e.preventDefault())
-    // pswp.on('pinchClose', (e) => e.preventDefault())
-    // pswp.on('verticalDrag', (e) => e.preventDefault())
-  }
-  return <>
-    <button onClick={handleOpen}>Open second slide</button>
-    <Gallery withCaption options={options} onBeforeOpen={handleChange} >
-      <GalleryContent ref={GalleryContentRef} activeIndex={activeIndex} />
-    </Gallery>
-  </>
-}
+  useImperativeHandle(
+    ref,
+    () => {
+      return {
+        open(index) {
+          setVisible(true);
+          setActiveIndex(index);
+        },
+      };
+    },
+    []
+  );
 
-const GalleryContent = forwardRef((props, ref) => {
-  let { activeIndex } = props;
-  const { open } = useGallery()
-
-  useImperativeHandle(ref, () => {
-    return {
-      open
-    };
-  }, []);
-
-  let images = [
-    'https://cdn.photoswipe.com/photoswipe-demo-images/photos/1/img-2500.jpg',
-    'https://cdn.photoswipe.com/photoswipe-demo-images/photos/2/img-2500.jpg',
-    'https://cdn.photoswipe.com/photoswipe-demo-images/photos/3/img-2500.jpg'
-  ]
-
+  let elementSize = 500;
   return (
-    <div>
-      {/* or you can open second slide on button click */}
-      {/* <button onClick={() => open(1)}>Open second slide</button> */}
-      <div>
-        {/* <Item
-          width="1024"
-          height="768"
-          // content={<img src='https://cdn.photoswipe.com/photoswipe-demo-images/photos/1/img-2500.jpg' />}
-          original='https://cdn.photoswipe.com/photoswipe-demo-images/photos/1/img-2500.jpg'
-          caption="Foo"
-        >
-          {({ ref }) => <div ref={ref} style={{ display: 'none' }}></div>}
-        </Item>
-        <Item
-          width="1024"
-          height="768"
-          // content={<img src='https://cdn.photoswipe.com/photoswipe-demo-images/photos/1/img-2500.jpg' />}
-          original='https://cdn.photoswipe.com/photoswipe-demo-images/photos/2/img-2500.jpg'
-          caption="Foo"
-        >
-          {({ ref }) => <div ref={ref} style={{ display: 'none' }}></div>}
-        </Item> */}
-        <Item
-          original="https://farm4.staticflickr.com/3894/15008518202_c265dfa55f_h.jpg"
-          thumbnail="https://farm4.staticflickr.com/3894/15008518202_b016d7d289_m.jpg"
-          width="1600"
-          height="1600"
-          alt="Photo of seashore by Folkert Gorter"
-        >
-          {({ ref, open }) => (
-            <img
-              style={{ cursor: 'pointer' }}
-              src="https://farm4.staticflickr.com/3894/15008518202_b016d7d289_m.jpg"
-              ref={ref}
-              onClick={open}
-            />
-          )}
-        </Item>
-        <Item
-          original="https://farm6.staticflickr.com/5591/15008867125_b61960af01_h.jpg"
-          thumbnail="https://farm6.staticflickr.com/5591/15008867125_68a8ed88cc_m.jpg"
-          width="1600"
-          height="1068"
-          alt="Photo of mountain lake by Samuel Rohl"
-        >
-          {({ ref, open }) => (
-            <img
-              src="https://farm6.staticflickr.com/5591/15008867125_68a8ed88cc_m.jpg"
-              ref={ref}
-              onClick={open}
-            />
-          )}
-        </Item>
-        {/* {
-          images.map((src, index) => {
-            return <GalleryItem init={index === activeIndex} key={index} src={src} />
-          })
-        } */}
-        {/* <Item
-          original="https://cdn.photoswipe.com/photoswipe-demo-images/photos/1/img-2500.jpg"
-          width="1024"
-        >
-          {({ ref, open }) => (
-            <img ref={ref} onClick={open} src="https://placekitten.com/80/60?image=1" />
-          )}
-        </Item>
-        <Item
-          width="1024"
-          original="https://cdn.photoswipe.com/photoswipe-demo-images/photos/1/img-2500.jpg"
-        >
-          {({ ref, open }) => (
-            <img ref={ref} onClick={open} src="https://placekitten.com/80/60?image=1" />
-          )}
-        </Item> */}
+    <PhotoProvider
+      loop={false}
+      visible={visible}
+      // key={images}
+      onClose={() => {
+        setVisible(false);
+      }}
+      onIndexChange={(index) => {
+        setActiveIndex(index);
+      }}
+      index={activeIndex}
+      overlayRender={(props) => {
+        let curImage = images[activeIndex];
+        let {dirrection, angle, ngTypeDesc} = curImage;
+        return (
+          <div className="photo-info">
+            {dirrection === 1 ? '正面' : '反面'}： <span className='angle'>{angle}°</span>&nbsp;&nbsp;<span>{ngTypeDesc}</span>
+          </div>
+        );
+      }}
+    >
+      <div className="foo">
+        {images.map((item, index) => (
+          <PhotoView
+            key={index}
+            width={elementSize}
+            height={elementSize}
+            render={({ scale, attrs }) => {
+              const width = attrs.style.width;
+              const offset = (width - elementSize) / elementSize;
+              const childScale = scale === 1 ? scale + offset : 1 + offset;
+              return (
+                <div {...attrs} className="custom-photo-item">
+                  <div style={{ transform: `scale(${childScale})`, width: elementSize, height: elementSize, transformOrigin: 'center center' }}>
+                    <Image imagePath={item.imagePath} init={index === activeIndex} />
+                  </div>
+                </div>
+              );
+            }}
+          ></PhotoView>
+        ))}
       </div>
-    </div>
-  )
-})
-
-function GalleryItem({ init, src }) {
-  let [original, setOriginal] = useState("");
-  useEffect(() => {
-    console.log(init)
-    if (init && !original) {
-      console.log('set origin')
-      console.log(src)
-      setOriginal(src)
-    }
-  }, [init])
-  return original ? <Item
-    original={original}
-    width="1024"
-    height="768"
-    caption="Foo"
-  >
-    {({ ref }) => <div ref={ref} style={{ display: 'none' }}></div>}
-  </Item> : <Item
-    original={original}
-    width="1024"
-    height="768"
-    caption="Foo"
-  >
-    {({ ref }) => <div ref={ref} style={{ display: 'none' }}></div>}
-  </Item>
-}
+    </PhotoProvider>
+  );
+});

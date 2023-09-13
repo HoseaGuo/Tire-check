@@ -40,11 +40,12 @@ h1 {
   }
 }
 .circles {
+  margin: -25px 0 -15px;
   display: flex;
   justify-content: center;
   align-items: center;
   > * {
-    margin: 0 1vw;
+    margin: 0 .5vh;
   }
 }
 .bottom {
@@ -67,7 +68,7 @@ h1 {
   border-radius: 6px;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
   overflow: auto;
-  height: calc(330px + 39px);
+  height: calc(300px + 39px);
   .item {
     margin: 10px 0;
   }

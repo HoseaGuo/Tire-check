@@ -1,9 +1,31 @@
-.pswp__content img{
-  // display: block;
-  // margin: auto;
-  // max-width: 100%;
-  // max-height: 100%;
+
+.angle{
+  display: inline-block;
+  width: 4em;
+  text-align: center;
 }
-.pswp__img{
-  object-fit: contain;
+
+.custom-photo-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  >div{
+    display: flex;
+  }
+  img{
+    margin: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+}
+
+.photo-info{
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  line-height: 44px;
+  z-index: 22;
+  color: #fff;
 }

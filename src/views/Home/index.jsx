@@ -16,6 +16,7 @@ import Circle from '../../components/Circle';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import api from '../../api';
+import { useRef } from 'react';
 
 const ngType = [
   {
@@ -89,7 +90,7 @@ const columns = [
   {
     title: '正反',
     render: function (text, record, index) {
-      return ['正面', '反面'][record.direction];
+      return ['反面', '正面'][record.direction];
     },
   },
   {
@@ -105,6 +106,8 @@ function CheckView() {
   let [codes, setCodes] = useState({});
   let [searching, setSearching] = useState(false);
 
+  let previewImageRef = useRef(null);
+
   let statisticsLabel = {
     // group: '组号',
     bubbleCount: '气泡数量',
@@ -116,12 +119,12 @@ function CheckView() {
     totalCount: '缺点总数',
   };
 
-  let frontPoints = dataSource.filter((item) => item.direction === 0).sort((a, b) => a.angle - b.angle);
+  let frontPoints = dataSource.filter((item) => item.direction === 1).sort((a, b) => a.angle - b.angle);
 
-  let backPoints = dataSource.filter((item) => item.direction === 1).sort((a, b) => a.angle - b.angle);
+  let backPoints = dataSource.filter((item) => item.direction === 0).sort((a, b) => a.angle - b.angle);
 
   let [previewDirection, setPreviewDirection] = useState(undefined);
-  let isFront = previewDirection === 0;
+  let isFront = previewDirection === 1;
 
   async function handleSearch(barCode, callback) {
     setSearching(true);
@@ -165,9 +168,19 @@ function CheckView() {
   let [initialSlide, setInitialSlide] = useState(0);
   let [slideActiveIndex, setSlideActiveIndex] = useState(-1);
   function previewPoint(point) {
+    // setPreviewVisible(true);
+    setPreviewDirection(point.direction);
+    isFront = point.direction === 1;
+    let index = (isFront ? frontPoints : backPoints).findIndex((item) => item.imagePath === point.imagePath);
+    // setInitialSlide(slideIndex);
+    // setSlideActiveIndex(slideIndex);
+    previewImageRef.current.open(index);
+  }
+
+  function previewPointBefore(){
     setPreviewVisible(true);
     setPreviewDirection(point.direction);
-    isFront = point.direction === 0;
+    isFront = point.direction === 1;
     let slideIndex = (isFront ? frontPoints : backPoints).findIndex((item) => item.imagePath === point.imagePath);
     setInitialSlide(slideIndex);
     setSlideActiveIndex(slideIndex);
@@ -209,7 +222,7 @@ function CheckView() {
           pagination={false}
           dataSource={dataSource}
           size="small"
-          scroll={{ y: '330px' }}
+          scroll={{ y: '300px' }}
           onRow={(record) => {
             return {
               onDoubleClick: (event) => {
@@ -258,7 +271,8 @@ function CheckView() {
           )}
         </div>
       </div>
-      <PreviewImage />
+      <PreviewImage ref={previewImageRef} images={(isFront ? frontPoints : backPoints)} />
+      {/* <button onClick={() => {previewImageRef.current.open(1)}}>saasdf</button> */}
       {previewVisible && (
         <div className="preview-image">
           <button
