@@ -17,12 +17,10 @@ export default {
     })
   },
   // 查询一张图片
-  getImage(imagePath) {
+  getImage(data) {
     return request({
       url: "/tyre/check/getImage",
-      data: {
-        imagePath
-      },
+      data
     })
   },
   // 查询角度调整信息

@@ -1,7 +1,6 @@
 import { Tabs, Table, Input, Spin, Tag } from 'antd';
 import { Swiper, SwiperSlide, useSwiper } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper/modules';
-import Image from './Image';
 import Search from './Search';
 import SettingView from './SettingView';
 import PreviewImage from '../../components/PreviewImage';
@@ -177,7 +176,7 @@ function CheckView() {
     previewImageRef.current.open(index);
   }
 
-  function previewPointBefore(){
+  function previewPointBefore() {
     setPreviewVisible(true);
     setPreviewDirection(point.direction);
     isFront = point.direction === 1;
@@ -272,7 +271,7 @@ function CheckView() {
           )}
         </div>
       </div>
-      <PreviewImage ref={previewImageRef} images={(isFront ? frontPoints : backPoints)} />
+      <PreviewImage ref={previewImageRef} images={(isFront ? frontPoints : backPoints)} qrCode={codes.qrCode} />
       {/* <button onClick={() => {previewImageRef.current.open(1)}}>saasdf</button> */}
       {previewVisible && (
         <div className="preview-image">
