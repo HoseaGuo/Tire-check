@@ -226,6 +226,7 @@ function CheckView() {
           onRow={(record) => {
             return {
               onDoubleClick: (event) => {
+                console.log('dbclick')
                 previewPoint(record);
               },
               onClick: (event) => {

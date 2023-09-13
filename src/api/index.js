@@ -1,6 +1,7 @@
 import createRequest from "../utils/request.js";
 
-let isDev = process.env.NODE_ENV === 'development';
+let isDev = process.env.NODE_ENV === 'development' || location.href.indexOf('mode=development') !== -1;
+
 const request = createRequest({
   baseURL: isDev ? 'http://159.75.126.25:8080' : ""
 });

@@ -8,10 +8,9 @@ import Image from './Image';
 
 export default forwardRef(function (props, ref) {
   let { images } = props;
-  
+
   let [visible, setVisible] = useState(false);
   let [activeIndex, setActiveIndex] = useState(-1);
-
 
   useImperativeHandle(
     ref,
@@ -26,7 +25,7 @@ export default forwardRef(function (props, ref) {
     []
   );
 
-  let elementSize = 500;
+  let elementSize = Math.min(window.innerWidth, 600);
   return (
     <PhotoProvider
       loop={false}
@@ -41,13 +40,21 @@ export default forwardRef(function (props, ref) {
       index={activeIndex}
       overlayRender={(props) => {
         let curImage = images[activeIndex];
-        let {dirrection, angle, ngTypeDesc} = curImage;
+        let { dirrection, angle, ngTypeDesc } = curImage;
         return (
           <div className="photo-info">
-            {dirrection === 1 ? '正面' : '反面'}： <span className='angle'>{angle}°</span>&nbsp;&nbsp;<span>{ngTypeDesc}</span>
+            {dirrection === 1 ? '正面' : '反面'}： <span className="angle">{angle}°</span>&nbsp;&nbsp;<span>{ngTypeDesc}</span>
           </div>
         );
       }}
+      // toolbarRender={({ onScale, scale }) => {
+      //   return (
+      //     <>
+      //       <svg className="PhotoView-Slider__toolbarIcon" onClick={() => onScale(scale + 1)} />
+      //       <svg className="PhotoView-Slider__toolbarIcon" onClick={() => onScale(scale - 1)} />
+      //     </>
+      //   );
+      // }}
     >
       <div className="foo">
         {images.map((item, index) => (
@@ -60,10 +67,10 @@ export default forwardRef(function (props, ref) {
               const offset = (width - elementSize) / elementSize;
               const childScale = scale === 1 ? scale + offset : 1 + offset;
               return (
-                <div {...attrs} className="custom-photo-item">
-                  <div style={{ transform: `scale(${childScale})`, width: elementSize, height: elementSize, transformOrigin: 'center center' }}>
-                    <Image imagePath={item.imagePath} init={index === activeIndex} />
-                  </div>
+                <div {...attrs} className="custom-photo-item" style={{ transform: `scale(${childScale})`, width: elementSize, height: elementSize, transformOrigin: '0 0' }}>
+                  <Image imagePath={item.imagePath} init={index === activeIndex} />
+                  {/* <div>
+                  </div> */}
                 </div>
               );
             }}

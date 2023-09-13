@@ -129,7 +129,6 @@ export default function (props) {
             }, 100);
           }
         };
-
         dblclickEventList.push(dblclickEvent);
         canvas.addEventListener('dblclick', dblclickEvent);
       });
