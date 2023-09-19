@@ -6,10 +6,10 @@ h1 {
   // left: 0;
   display: flex;
   align-items: center;
-  .logo{
+  .logo {
     height: 50px;
     width: 120px;
-    img{
+    img {
       height: 100%;
     }
   }
@@ -28,12 +28,12 @@ h1 {
   justify-content: center;
   flex-wrap: wrap;
   user-select: none;
-  .item{
+  .item {
     margin: 10px 10px;
     line-height: 20px;
     white-space: nowrap;
   }
-  b{
+  b {
     display: inline-block;
     width: 24px;
     height: 14px;
@@ -41,7 +41,7 @@ h1 {
     vertical-align: middle;
     margin-right: 4px;
   }
-  span{
+  span {
     display: inline-block;
     vertical-align: middle;
     font-size: 14px;
@@ -54,7 +54,7 @@ h1 {
   justify-content: center;
   align-items: center;
   > * {
-    margin: 0 .5vh;
+    margin: 0 0.5vh;
   }
 }
 .bottom {
@@ -62,7 +62,7 @@ h1 {
   display: flex;
   justify-content: space-between;
   // height: 30vh;
-  >*{
+  > * {
     width: 49.5%;
   }
 }
@@ -177,8 +177,10 @@ h1 {
 }
 
 // 表格悬浮hover颜色
-:where(.css-dev-only-do-not-override-nnuwmp).ant-table-wrapper .ant-table-tbody >tr.ant-table-row:hover>td,
-:where(.css-dev-only-do-not-override-nnuwmp).ant-table-wrapper .ant-table-tbody >tr.ant-table-row.selected>td{
+:where(.css-dev-only-do-not-override-nnuwmp).ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td,
+:where(.css-nnuwmp).ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td,
+:where(.css-dev-only-do-not-override-nnuwmp).ant-table-wrapper .ant-table-tbody > tr.ant-table-row.selected > td,
+:where(.css-nnuwmp).ant-table-wrapper .ant-table-tbody > tr.ant-table-row.selected > td {
   background-color: #aaa;
   color: #fff;
 }

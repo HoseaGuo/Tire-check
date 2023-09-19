@@ -191,7 +191,7 @@ function CheckView() {
     function clickEvent() {
       setSelectedPoint(null);
       // 移除选中行的样式
-      [].forEach.call(document.querySelectorAll(':where(.css-dev-only-do-not-override-nnuwmp).ant-table-wrapper .ant-table-tbody >tr.ant-table-row.selected'), function(ele){
+      [].forEach.call(document.querySelectorAll('.ant-table-tbody >tr.ant-table-row.selected'), function(ele){
         ele.classList.remove('selected')
       })
     }
