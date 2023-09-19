@@ -177,6 +177,8 @@ h1 {
 }
 
 // 表格悬浮hover颜色
-:where(.css-dev-only-do-not-override-nnuwmp).ant-table-wrapper .ant-table-tbody >tr.ant-table-row:hover>td{
-  background-color: #ccc;
+:where(.css-dev-only-do-not-override-nnuwmp).ant-table-wrapper .ant-table-tbody >tr.ant-table-row:hover>td,
+:where(.css-dev-only-do-not-override-nnuwmp).ant-table-wrapper .ant-table-tbody >tr.ant-table-row.selected>td{
+  background-color: #aaa;
+  color: #fff;
 }

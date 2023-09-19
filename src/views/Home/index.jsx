@@ -190,6 +190,10 @@ function CheckView() {
   useEffect(() => {
     function clickEvent() {
       setSelectedPoint(null);
+      // 移除选中行的样式
+      [].forEach.call(document.querySelectorAll(':where(.css-dev-only-do-not-override-nnuwmp).ant-table-wrapper .ant-table-tbody >tr.ant-table-row.selected'), function(ele){
+        ele.classList.remove('selected')
+      })
     }
     window.addEventListener('click', clickEvent);
     return function () {
@@ -232,6 +236,13 @@ function CheckView() {
                 // 阻止冒泡
                 event.stopPropagation();
                 setSelectedPoint(record);
+                // console.log(event.target.parentNode)
+                let parentNode = event.target.parentNode;
+                let selectedRow = parentNode.parentNode.querySelector('.selected');
+                if(selectedRow){
+                  selectedRow.classList.remove('selected');
+                }
+                parentNode.classList.add('selected')
               },
             };
           }}

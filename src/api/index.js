@@ -29,7 +29,7 @@ export default {
       url: "/tyre/check/getAngelAdjustInfo",
     })
   },
-  // /tyre/check/updateAngelAdjustInfo
+  // 更新角度信息
   updateAngelAdjustInfo(data) {
     return request({
       url: "/tyre/check/updateAngelAdjustInfo",
