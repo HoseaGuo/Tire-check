@@ -21,7 +21,7 @@ const ngType = [
   {
     code: 0,
     desc: '未知',
-    color: '#eee'
+    color: '#eee',
   },
   {
     code: 1,
@@ -225,7 +225,7 @@ function CheckView() {
           onRow={(record) => {
             return {
               onDoubleClick: (event) => {
-                console.log('dbclick')
+                console.log('dbclick');
                 previewPoint(record);
               },
               onClick: (event) => {
@@ -271,7 +271,7 @@ function CheckView() {
           )}
         </div>
       </div>
-      <PreviewImage ref={previewImageRef} images={(isFront ? frontPoints : backPoints)} qrCode={codes.qrCode} />
+      <PreviewImage ref={previewImageRef} images={isFront ? frontPoints : backPoints} qrCode={codes.qrCode} />
       {/* <button onClick={() => {previewImageRef.current.open(1)}}>saasdf</button> */}
       {previewVisible && (
         <div className="preview-image">
@@ -317,7 +317,6 @@ function CheckView() {
               );
             })}
           </Swiper> */}
-
         </div>
       )}
     </Spin>
@@ -337,6 +336,8 @@ const items = [
   },
 ];
 
+import logo from '../../assets/logo.png';
+
 export default function () {
   return (
     <>
@@ -346,7 +347,14 @@ export default function () {
           items={items}
           centered
           tabBarExtraContent={{
-            left: <h1>永湖集团轮圈检验查询系统</h1>,
+            left: (
+              <h1>
+                <div className="logo">
+                  <img src={logo} alt="" />
+                </div>
+                永湖集团轮圈检验查询系统
+              </h1>
+            ),
           }}
         />
       </div>
