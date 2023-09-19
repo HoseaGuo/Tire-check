@@ -7,7 +7,7 @@ import Image from './Image';
 /** react-photo-view使用文档：https://react-photo-view.vercel.app/docs/getting-started */
 
 export default forwardRef(function (props, ref) {
-  let { images } = props;
+  let { images, qrCode } = props;
 
   let [visible, setVisible] = useState(false);
   let [activeIndex, setActiveIndex] = useState(-1);
@@ -47,14 +47,14 @@ export default forwardRef(function (props, ref) {
           </div>
         );
       }}
-      // toolbarRender={({ onScale, scale }) => {
-      //   return (
-      //     <>
-      //       <svg className="PhotoView-Slider__toolbarIcon" onClick={() => onScale(scale + 1)} />
-      //       <svg className="PhotoView-Slider__toolbarIcon" onClick={() => onScale(scale - 1)} />
-      //     </>
-      //   );
-      // }}
+    // toolbarRender={({ onScale, scale }) => {
+    //   return (
+    //     <>
+    //       <svg className="PhotoView-Slider__toolbarIcon" onClick={() => onScale(scale + 1)} />
+    //       <svg className="PhotoView-Slider__toolbarIcon" onClick={() => onScale(scale - 1)} />
+    //     </>
+    //   );
+    // }}
     >
       <div className="foo">
         {images.map((item, index) => (
@@ -68,7 +68,7 @@ export default forwardRef(function (props, ref) {
               const childScale = scale === 1 ? scale + offset : 1 + offset;
               return (
                 <div {...attrs} className="custom-photo-item" style={{ transform: `scale(${childScale})`, width: elementSize, height: elementSize, transformOrigin: '0 0' }}>
-                  <Image imagePath={item.imagePath} init={index === activeIndex} />
+                  <Image imagePath={item.imagePath} init={index === activeIndex} qrCode={qrCode} />
                   {/* <div>
                   </div> */}
                 </div>
