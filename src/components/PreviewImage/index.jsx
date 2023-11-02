@@ -40,10 +40,10 @@ export default forwardRef(function (props, ref) {
       index={activeIndex}
       overlayRender={(props) => {
         let curImage = images[activeIndex];
-        let { dirrection, angle, ngTypeDesc } = curImage;
+        let { direction, angle, ngTypeDesc } = curImage;
         return (
           <div className="photo-info">
-            {dirrection === 1 ? '正面' : '反面'}： <span className="angle">{angle}°</span>&nbsp;&nbsp;<span>{ngTypeDesc}</span>
+            {direction === 1 ? '正面' : '反面'}： <span className="angle">{angle}°</span>&nbsp;&nbsp;<span>{ngTypeDesc}</span>
           </div>
         );
       }}
